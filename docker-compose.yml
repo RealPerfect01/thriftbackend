@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    image: tumton-backend:latest
+    container_name: tumton-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-tumton-super-secret-change-me}
+      - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-60}
+      - DATABASE_PATH=/data/tumton.db
+      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY:-sk_test_e7b2389104081974bbdf90184719041289190284}
+      - PAYSTACK_PUBLIC_KEY=${PAYSTACK_PUBLIC_KEY:-pk_test_d3a8e7e1f4095818987b77bfb084920401827492}
+      - FLUTTERWAVE_SECRET_KEY=${FLUTTERWAVE_SECRET_KEY:-FLWSECK_TEST-481902849182390-X}
+      - FLUTTERWAVE_PUBLIC_KEY=${FLUTTERWAVE_PUBLIC_KEY:-FLWPUBK_TEST-938217048129038-X}
+    volumes:
+      # Persist the SQLite DB file across container restarts/rebuilds.
+      - tumton-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  tumton-data:
